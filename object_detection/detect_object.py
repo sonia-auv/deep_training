@@ -7,6 +7,7 @@ from sensor_msgs.msg import Image as SensorImage
 import sys
 import tensorflow as tf
 import tarfile
+import requests
 import cv2
 import rospy
 
@@ -20,9 +21,16 @@ from object_detection.utils import label_map_util
 from object_detection.utils import visualization_utils as vis_util
 
 
+# What model to download.
+MODEL_NAME = 'ssd_mobilenet_v1_coco_11_06_2017'
+MODEL_FILE = MODEL_NAME + '.tar.gz'
+DOWNLOAD_BASE = 'http://download.tensorflow.org/models/object_detection/'
+
 PATH_TO_CKPT = 'ssd_mobilenet_v1_coco_11_06_2017' + '/frozen_inference_graph.pb'
 
 image_cv = CvBridge()
+
+
 def image_msg_callback(img):
     image = image_cv.imgmsg_to_cv2(img)
     pass
@@ -32,11 +40,18 @@ image_publisher = rospy.Publisher('/deep_detection/object_detection', SensorImag
 image_subscriber = rospy.Subscriber('/usb_cam/image_raw', SensorImage, image_msg_callback)
 
 
-
 # List of the strings that is used to add correct label for each box.
 PATH_TO_LABELS = os.path.join('data', 'mscoco_label_map.pbtxt')
 
 NUM_CLASSES = 90
+
+if not os.path.exist(MODEL_FILE):
+    url = DOWNLOAD_BASE + MODEL_FILE
+    filename = url.split("/")[-1]
+    with open(filename, "wb") as file_:
+        r = requests.get(url)
+        file_.write(r.content)
+
 
 tar_file = tarfile.open('ssd_mobilenet_v1_coco_11_06_2017.tar.gz')
 for files in tar_file.getmembers():
@@ -54,7 +69,8 @@ with detection_graph.as_default():
 
 
 label_map = label_map_util.load_labelmap(PATH_TO_LABELS)
-categories = label_map_util.convert_label_map_to_categories(label_map, max_num_classes=NUM_CLASSES, use_display_name=True)
+categories = label_map_util.convert_label_map_to_categories(
+    label_map, max_num_classes=NUM_CLASSES, use_display_name=True)
 category_index = label_map_util.create_category_index(categories)
 
 
@@ -66,6 +82,7 @@ def load_image_into_numpy_array(image):
     (im_width, im_height) = image.size
     return np.array(image.getdata()).reshape(
         (im_height, im_width, 3)).astype(np.uint8)
+
 
 with detection_graph.as_default():
     with tf.Session(graph=detection_graph) as sess:
@@ -82,7 +99,8 @@ with detection_graph.as_default():
             classes = detection_graph.get_tensor_by_name('detection_classes:0')
             num_detections = detection_graph.get_tensor_by_name('num_detections:0')
             # Actual detection.
-            (boxes, scores, classes, num_detections) = sess.run([boxes, scores, classes, num_detections], feed_dict={image_tensor: image_np_expanded})
+            (boxes, scores, classes, num_detections) = sess.run(
+                [boxes, scores, classes, num_detections], feed_dict={image_tensor: image_np_expanded})
             # Visualization of the results of a detection.
             vis_util.visualize_boxes_and_labels_on_image_array(
                 image_np,
@@ -96,6 +114,5 @@ with detection_graph.as_default():
             image_message = image_cv.cv2_to_imgmsg(image_np, encoding="rgb8")
             image_publisher.publish(image_message)
             if cv2.waitKey(25) & 0xFF == ord('q'):
-              cv2.destroyAllWindows()
-              break
-
+                cv2.destroyAllWindows()
+                break
