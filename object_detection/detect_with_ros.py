@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 import numpy as np
 import os
-import six.moves.urllib as urllib
+import time
 from cv_bridge import CvBridge
 from sensor_msgs.msg import Image as SensorImage
 import sys
@@ -20,7 +20,7 @@ class ObjectDetection:
         self.cv_bridge = CvBridge()
 
         self.image_publisher = rospy.Publisher('/deep_detection/object_detection', SensorImage, queue_size=100)
-        self.image_subscriber = rospy.Subscriber('/provider_vision/Front_GigE', SensorImage, self.image_msg_callback)
+        self.image_subscriber = rospy.Subscriber('/usb_cam/image_raw', SensorImage, self.image_msg_callback)
 
         self.object_detection()
 
@@ -69,6 +69,7 @@ class ObjectDetection:
                 while not rospy.is_shutdown():
                     image_np = self.frame
                     if image_np is not None:
+                        start_time = time.time()
                         image_np.setflags(write=1)
                         image_np_expanded = np.expand_dims(image_np, axis=0)
                         image_tensor = detection_graph.get_tensor_by_name('image_tensor:0')
@@ -91,7 +92,7 @@ class ObjectDetection:
                             category_index,
                             use_normalized_coordinates=True,
                             line_thickness=8)
-
+                        print "FPS: ", 1.0 / float(time.time() - start_time)
                         image_message = self.cv_bridge.cv2_to_imgmsg(image_np, encoding="rgb8")
                         self.image_publisher.publish(image_message)
                         if cv2.waitKey(25) & 0xFF == ord('q'):
