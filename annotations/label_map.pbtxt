@@ -1,14 +1,24 @@
 item {
   id: 1
-  name: 'snitch'
+  name: 'Dice 1'
 }
 
 item {
   id: 2
-  name: 'quaffle'
+  name: 'Dice 2'
 }
 
 item {
   id: 3
-  name: 'bludger'
+  name: 'Dice 3'
+}
+
+item {
+  id: 4
+  name: 'Dice 4'
+}
+
+item {
+  id: 5
+  name: 'Dice 5'
 }
