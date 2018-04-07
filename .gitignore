@@ -106,7 +106,6 @@ annotation/*
 annotations/xmls/*
 images/*
 train/*
-pipeline.config
 train.record
 val.record
 
