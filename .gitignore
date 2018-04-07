@@ -108,6 +108,7 @@ images/*
 train/*
 train.record
 val.record
+transfer_model/*
 
 
 
