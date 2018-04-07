@@ -99,3 +99,16 @@ ENV/
 
 # mypy
 .mypy_cache/
+
+
+# Project specific 
+annotation/*
+annotations/xmls/*
+images/*
+train/*
+pipeline.config
+train.record
+val.record
+
+
+
