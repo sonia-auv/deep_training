@@ -100,19 +100,10 @@ ENV/
 # mypy
 .mypy_cache/
 
+# IdeaJ
+.idea
 
-# Project specific
-annotation/*
-annotations/xmls/*
-images/*
-train/*
-train.record
-val.record
-transfer_model/*
-
-dataset/
-
-# VS Code
+# VSCode
 .vscode
 
 
