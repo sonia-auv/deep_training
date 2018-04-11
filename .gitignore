@@ -101,7 +101,7 @@ ENV/
 .mypy_cache/
 
 
-# Project specific 
+# Project specific
 annotation/*
 annotations/xmls/*
 images/*
@@ -109,6 +109,11 @@ train/*
 train.record
 val.record
 transfer_model/*
+
+dataset/
+
+# VS Code
+.vscode
 
 
 
