@@ -106,5 +106,5 @@ ENV/
 # VSCode
 .vscode
 
-
+object_detection/protos
 
