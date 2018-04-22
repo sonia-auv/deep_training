@@ -106,5 +106,6 @@ ENV/
 # VSCode
 .vscode
 
-
+# Project specific 
+exported
 
