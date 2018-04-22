@@ -5,6 +5,7 @@ import sys
 import tensorflow as tf
 import tarfile
 import cv2
+import time
 
 cap = cv2.VideoCapture(0)
 
@@ -113,6 +114,7 @@ with detection_graph.as_default():
     Writer = tf.summary.FileWriter("./logs/graph", sess.graph)
     while True:
       ret, image_np = cap.read()
+      start_time = time.time()
       # Expand dimensions since the model expects images to have shape: [1, None, None, 3]
       image_np_expanded = np.expand_dims(image_np, axis=0)
       image_tensor = detection_graph.get_tensor_by_name('image_tensor:0')
@@ -136,7 +138,7 @@ with detection_graph.as_default():
           category_index,
           use_normalized_coordinates=True,
           line_thickness=8)
-
+      print "FPS: ", 1.0 / float(time.time() - start_time)
       cv2.imshow('object detection', cv2.resize(image_np, (800,600)))
       if cv2.waitKey(25) & 0xFF == ord('q'):
         cv2.destroyAllWindows()
