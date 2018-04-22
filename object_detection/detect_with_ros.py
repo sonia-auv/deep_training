@@ -20,7 +20,7 @@ class ObjectDetection:
         self.cv_bridge = CvBridge()
 
         self.image_publisher = rospy.Publisher('/deep_detection/object_detection', SensorImage, queue_size=100)
-        self.image_subscriber = rospy.Subscriber('/usb_cam/image_raw', SensorImage, self.image_msg_callback)
+        self.image_subscriber = rospy.Subscriber('/provider_vision/Front_GigE', SensorImage, self.image_msg_callback)
 
         self.object_detection()
 
