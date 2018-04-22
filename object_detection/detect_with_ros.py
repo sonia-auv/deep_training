@@ -19,8 +19,10 @@ class ObjectDetection:
         self.frame = None
         self.cv_bridge = CvBridge()
 
-        self.image_publisher = rospy.Publisher('/deep_detection/object_detection', SensorImage, queue_size=100)
-        self.image_subscriber = rospy.Subscriber('/provider_vision/Front_GigE', SensorImage, self.image_msg_callback)
+        self.image_publisher = rospy.Publisher(
+            '/deep_detection/object_detection', SensorImage, queue_size=100)
+        self.image_subscriber = rospy.Subscriber(
+            '/provider_vision/Front', SensorImage, self.image_msg_callback)
 
         self.object_detection()
 
@@ -37,18 +39,18 @@ class ObjectDetection:
 
         from object_detection.utils import visualization_utils as vis_util
 
-        PATH_TO_CKPT = 'ssd_mobilenet_v1_coco_11_06_2017' + '/frozen_inference_graph.pb'
+        PATH_TO_CKPT = 'mobilenet_v1' + '/frozen_inference_graph.pb'
 
         # List of the strings that is used to add correct label for each box.
-        PATH_TO_LABELS = os.path.join('data', 'mscoco_label_map.pbtxt')
+        PATH_TO_LABELS = os.path.join('mobilenet_v1', 'label_map.pbtxt')
 
         NUM_CLASSES = 90
 
-        tar_file = tarfile.open('ssd_mobilenet_v1_coco_11_06_2017.tar.gz')
-        for files in tar_file.getmembers():
-            file_name = os.path.basename(files.name)
-            if 'frozen_inference_graph.pb' in file_name:
-                tar_file.extract(files, os.getcwd())
+        # tar_file = tarfile.open('ssd_mobilenet_v1_coco_11_06_2017.tar.gz')
+        # for files in tar_file.getmembers():
+        #     file_name = os.path.basename(files.name)
+        #     if 'frozen_inference_graph.pb' in file_name:
+        #         tar_file.extract(files, os.getcwd())
 
         detection_graph = tf.Graph()
         with detection_graph.as_default():
@@ -98,6 +100,7 @@ class ObjectDetection:
                         if cv2.waitKey(25) & 0xFF == ord('q'):
                             cv2.destroyAllWindows()
                             break
+
 
 if __name__ == '__main__':
     ObjectDetection()
