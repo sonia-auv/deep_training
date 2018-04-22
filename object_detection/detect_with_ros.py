@@ -39,12 +39,12 @@ class ObjectDetection:
 
         from object_detection.utils import visualization_utils as vis_util
 
-        PATH_TO_CKPT = 'mobilenet_v1' + '/frozen_inference_graph.pb'
+        PATH_TO_CKPT = '../mobilenet_v1' + '/frozen_inference_graph.pb'
 
         # List of the strings that is used to add correct label for each box.
-        PATH_TO_LABELS = os.path.join('mobilenet_v1', 'label_map.pbtxt')
+        PATH_TO_LABELS = os.path.join('../mobilenet_v1', 'label_map.pbtxt')
 
-        NUM_CLASSES = 90
+        NUM_CLASSES = 6
 
         # tar_file = tarfile.open('ssd_mobilenet_v1_coco_11_06_2017.tar.gz')
         # for files in tar_file.getmembers():
