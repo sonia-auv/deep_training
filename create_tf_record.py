@@ -150,9 +150,11 @@ def create_tf_record(output_filename,
 
 
 def main(_):
+    home = os.path.expanduser('~')
+
     label_map_dict = label_map_util.get_label_map_dict('dataset/annotations/label_map.pbtxt')
 
-    logging.info('Reading from Pet dataset.')
+    logging.info('Reading from dataset.')
     image_dir = os.path.join('dataset', 'images')
     annotations_dir = os.path.join('dataset', 'annotations')
     examples_path = os.path.join(annotations_dir, 'trainval.txt')
