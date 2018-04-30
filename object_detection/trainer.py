@@ -317,8 +317,7 @@ def train(create_tensor_dict_fn, create_model_fn, train_config, master, task,
         keep_checkpoint_every_n_hours = train_config.keep_checkpoint_every_n_hours
         saver = tf.train.Saver(
             max_to_keep=50,
-            keep_checkpoint_every_n_hours=keep_checkpoint_every_n_hours,
-            save_interval_secs=300)
+            keep_checkpoint_every_n_hours=keep_checkpoint_every_n_hours)
 
         slim.learning.train(
             train_tensor,
