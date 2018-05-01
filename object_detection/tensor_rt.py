@@ -5,23 +5,25 @@ from __future__ import print_function
 import tensorflow as tf
 import tensorflow.contrib.tensorrt as trt
 import IPython
+import os
 
+from tensorflow.python.platform import gfile
 
 
 os.environ["CUDA_VISIBLE_DEVICES"]="0"
 
-INPUT_TENSOR_NAME = 'image_tensor:0'
+#INPUT_TENSOR_NAME = 'image_tensor:0'
 
-OUPUT_TENSOR_NAMES  = [
+output_node_name  = [
     'detection_boxes:0',
     'detection_scores:0',
     'detection_classes:0',
     'num_detections:0',
 ]
 
-MAX_BATCH_SIZE = 24
-WORKSPACE_SIZE = 4000000000
-PRECISION='FP32' #“FP32”, “FP16” or “INT8”
+batch_size = 24
+workspace_size = 4000000000
+precision='FP32' #“FP32”, “FP16” or “INT8”
 
 gpu_options = tf.GPUOptions(per_process_gpu_memory_fraction=0.67)
 
@@ -31,7 +33,7 @@ with gfile.FastGFile(file_name,'rb') as f:
     graph_def = tf.GraphDef()
     graph_def.ParseFromString(f.read())
     tf.reset_default_graph()
-    g=tf.Graph()
+    frozen_graph_def=tf.Graph()
 
     IPython.embed()
 
