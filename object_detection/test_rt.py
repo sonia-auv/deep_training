@@ -48,7 +48,6 @@ if __name__ == "__main__":
     'detection_boxes:0',
     'detection_scores:0',
     'detection_classes:0',
-    'num_detections:0',
     ]
 
     get_trt_graph('test',frozen_graph_def , "INT8", '/home/spark/',
