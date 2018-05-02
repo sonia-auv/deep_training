@@ -44,5 +44,12 @@ output_node, batch_size=24, workspace_size=10<<30):
 if __name__ == "__main__":
     frozen_graph_def = get_frozen_graph('/home/spark/Models/frozen/frozen/mobilenet_v1/frozen_inference_graph.pb')
 
-    get_trt_graph('test',frozen_graph_def , "FP32", '/home/spark/',
-    'SemanticPredictions')
+    output_node_name  = [
+    'detection_boxes:0',
+    'detection_scores:0',
+    'detection_classes:0',
+    'num_detections:0',
+    ]
+
+    get_trt_graph('test',frozen_graph_def , "INT8", '/home/spark/',
+    output_node_name)
