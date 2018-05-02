@@ -58,5 +58,5 @@ if __name__ == "__main__":
     'detection_boxes', 'detection_scores', 'detection_classes', 'num_detections',
     ]
 
-    get_trt_graph('test',frozen_graph_def , "INT8", '/home/spark/',
+    get_trt_graph('test',frozen_graph_def , "FP32", '/home/spark/',
     output_node_name)
