@@ -46,7 +46,8 @@ def find_nodes(path_to_graph):
    gf = tf.GraphDef()
    gf.ParseFromString(open(path_to_graph,'rb').read())
 
-   print([n.name + '=>' +  n.op for n in gf.node if n.op in (NODE_OPS)])
+   print([n.name for n in tf.get_default_graph().as_graph_def().node])
+   #print([n.name + '=>' +  n.op for n in gf.node if n.op in (NODE_OPS)])
 
 if __name__ == "__main__":
     find_nodes('/home/spark/Models/frozen/frozen/mobilenet_v1/frozen_inference_graph.pb')

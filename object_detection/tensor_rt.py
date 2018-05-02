@@ -32,14 +32,9 @@ file_name = '/home/spark/Models/frozen/frozen/mobilenet_v1/frozen_inference_grap
 with gfile.FastGFile(file_name,'rb') as f:
     graph_def = tf.GraphDef()
     graph_def.ParseFromString(f.read())
-    tf.reset_default_graph()
-    frozen_graph_def=tf.Graph()
-
-    IPython.embed()
-
 
     trt_graph = trt.create_inference_graph(
-        input_graph_def = frozen_graph_def,
+        input_graph_def =   graph_def,
         outputs = output_node_name,
         max_batch_size=batch_size,
         max_workspace_size_bytes=workspace_size,
