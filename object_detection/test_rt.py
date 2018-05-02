@@ -40,8 +40,16 @@ output_node, batch_size=24, workspace_size=10<<30):
     write_graph_to_file(graph_name, trt_graph, output_dir)
 
 
+def find_nodes(path_to_graph):
+   NODE_OPS = ['Placeholder','Identity']
+
+   gf = tf.GraphDef()
+   gf.ParseFromString(open(path_to_graph,'rb').read())
+
+   print([n.name + '=>' +  n.op for n in gf.node if n.op in (NODE_OPS)])
 
 if __name__ == "__main__":
+    find_nodes('/home/spark/Models/frozen/frozen/mobilenet_v1/frozen_inference_graph.pb')
     frozen_graph_def = get_frozen_graph('/home/spark/Models/frozen/frozen/mobilenet_v1/frozen_inference_graph.pb')
 
     output_node_name  = [
