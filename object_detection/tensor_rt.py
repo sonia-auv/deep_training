@@ -15,10 +15,10 @@ os.environ["CUDA_VISIBLE_DEVICES"]="0"
 #INPUT_TENSOR_NAME = 'image_tensor:0'
 
 output_node_name  = [
-    'detection_boxes:0',
-    'detection_scores:0',
-    'detection_classes:0',
-    'num_detections:0',
+    'detection_boxes',
+    'detection_scores',
+    'detection_classes',
+    'num_detections',
 ]
 
 batch_size = 24
