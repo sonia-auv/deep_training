@@ -33,7 +33,11 @@ def write_graph_to_file(graph_name, graph_def, output_dir):
 
 
 def get_trt_graph(graph_name, graph_def, precision_mode, output_dir,
-output_node, batch_size=24, workspace_size=10<<30):
+output_node, batch_size=24, workspace_size=4000000000):
+    gpu_options = tf.GPUOptions(per_process_gpu_memory_fraction=0.67)
+
+    sess = tf.Session(config=tf.ConfigProto(gpu_options=gpu_options))
+
     trt_graph = trt.create_inference_graph(
         graph_def, output_node, max_batch_size=batch_size,
         max_workspace_size_bytes=workspace_size,
