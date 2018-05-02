@@ -27,7 +27,7 @@ precision='FP32' #“FP32”, “FP16” or “INT8”
 
 gpu_options = tf.GPUOptions(per_process_gpu_memory_fraction=0.67)
 
-file_name = '/home/spark/Downloads/'
+file_name = '/home/spark/Models/frozen/frozen/mobilenet_v1/frozen_inference_graph.pb'
 
 with gfile.FastGFile(file_name,'rb') as f:
     graph_def = tf.GraphDef()
