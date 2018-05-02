@@ -34,7 +34,7 @@ def write_graph_to_file(graph_name, graph_def, output_dir):
 def get_trt_graph(graph_name, graph_def, precision_mode, output_dir,
 output_node, batch_size=24, workspace_size=10<<30):
     trt_graph = trt.create_inference_graph(
-        graph_def, [output_node], max_batch_size=batch_size,
+        graph_def, output_node, max_batch_size=batch_size,
         max_workspace_size_bytes=workspace_size,
         precision_mode=precision_mode)
     write_graph_to_file(graph_name, trt_graph, output_dir)
