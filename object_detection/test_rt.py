@@ -55,9 +55,7 @@ if __name__ == "__main__":
     frozen_graph_def = get_frozen_graph('/home/spark/Models/frozen/frozen/mobilenet_v1/frozen_inference_graph.pb')
 
     output_node_name  = [
-    'detection_boxes:0',
-    'detection_scores:0',
-    'detection_classes:0',
+    'detection_boxes', 'detection_scores', 'detection_classes', 'num_detections',
     ]
 
     get_trt_graph('test',frozen_graph_def , "INT8", '/home/spark/',
