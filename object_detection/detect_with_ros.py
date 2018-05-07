@@ -1,17 +1,26 @@
 #!/usr/bin/env python
-import numpy as np
 import os
+import sys
+import tarfile
 import time
+
+import cv2
+import numpy as np
+import rospy
 from cv_bridge import CvBridge
 from sensor_msgs.msg import Image as SensorImage
-import sys
+
 import tensorflow as tf
-import tarfile
-import cv2
-import rospy
+from object_detection.utils import visualization_utils as vis_util
+from object_detection.utils import label_map_util
 
 
 class ObjectDetection:
+    #PATH_TO_CKPT = '../mobilenet_v1' + '/frozen_inference_graph.pb'
+    PATH_TO_CKPT = os.path.join(os.path.expanduser('~'), 'Inference', 'frozen_inference_graph.pb')
+    # List of the strings that is used to add correct label for each box.
+    PATH_TO_LABELS = os.path.join(os.path.expanduser('~'), 'Inference', 'label_map.pbtxt')
+    NUM_CLASSES = 4
 
     def __init__(self):
         rospy.init_node('deep_detection')
@@ -34,17 +43,6 @@ class ObjectDetection:
 
     def object_detection(self):
         sys.path.append("..")
-
-        from object_detection.utils import label_map_util
-
-        from object_detection.utils import visualization_utils as vis_util
-
-        PATH_TO_CKPT = '../mobilenet_v1' + '/frozen_inference_graph.pb'
-
-        # List of the strings that is used to add correct label for each box.
-        PATH_TO_LABELS = os.path.join('../mobilenet_v1', 'label_map.pbtxt')
-
-        NUM_CLASSES = 6
 
         # tar_file = tarfile.open('ssd_mobilenet_v1_coco_11_06_2017.tar.gz')
         # for files in tar_file.getmembers():
@@ -95,7 +93,7 @@ class ObjectDetection:
                             use_normalized_coordinates=True,
                             line_thickness=8)
                         print "FPS: ", 1.0 / float(time.time() - start_time)
-                        image_message = self.cv_bridge.cv2_to_imgmsg(image_np, encoding="rgb8")
+                        image_message = self.cv_bridge.cv2_to_imgmsg(image_np, encoding='bgr8')
                         self.image_publisher.publish(image_message)
                         if cv2.waitKey(25) & 0xFF == ord('q'):
                             cv2.destroyAllWindows()
