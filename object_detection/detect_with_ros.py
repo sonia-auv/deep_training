@@ -23,7 +23,7 @@ class ObjectDetection:
     NUM_CLASSES = 4
 
     IMAGE_PUBLISHER = '/deep_detection/object_detection'
-    IMAGE_SUBSCRIBER = '/provider_vision/FrontGigE'
+    IMAGE_SUBSCRIBER = '/usb_cam/image_raw'
 
     def __init__(self):
         rospy.init_node('deep_detection')
@@ -31,10 +31,10 @@ class ObjectDetection:
         self.frame = None
         self.cv_bridge = CvBridge()
 
-        self.image_publisher = rospy.Publisher(IMAGE_PUBLISHER,
+        self.image_publisher = rospy.Publisher(self.IMAGE_PUBLISHER,
                                                SensorImage, queue_size=100)
         self.image_subscriber = rospy.Subscriber(
-            IMAGE_SUBSCRIBER, SensorImage, self.image_msg_callback)
+            self.IMAGE_SUBSCRIBER, SensorImage, self.image_msg_callback)
 
         self.object_detection()
 
@@ -137,7 +137,7 @@ class ObjectDetection:
         print('>>>>>>> Loading labelmap from label_map.pbtxt <<<<<<<<')
         label_map = label_map_util.load_labelmap(label_path)
         categories = label_map_util.convert_label_map_to_categories(
-        label_map, max_num_classes=num_classes, use_display_name=True)
+            label_map, max_num_classes=num_classes, use_display_name=True)
         category_index = label_map_util.create_category_index(categories)
         return category_index
 
@@ -166,7 +166,7 @@ class ObjectDetection:
                     cpu_worker = SessionWorker("CPU", detection_graph, config)
                     gpu_opts = [score_out, expand_out]
                     cpu_opts = [detection_boxes, detection_scores,
-                        detection_classes, num_detections]
+                                detection_classes, num_detections]
                     gpu_counter = 0
                     cpu_counter = 0
                 # Start Video Stream and FPS calculation
@@ -263,12 +263,10 @@ class ObjectDetection:
         video_stream.stop()
         cv2.destroyAllWindows()
         print('> [INFO] elapsed time (total): {:.2f}'.format(fps.elapsed()))
-        print('> [INFO] approx. FPS: {:.2f}'.format(fps.fps())
-
+        print('> [INFO] approx. FPS: {:.2f}'.format(fps.fps()))
 
     def image_msg_callback(self, img):
-        self.frame=self.cv_bridge.imgmsg_to_cv2(img)
-        pass
+        self.frame = self.cv_bridge.imgmsg_to_cv2(img)
 
     def object_detection(self):
         sys.path.append("..")
@@ -279,38 +277,42 @@ class ObjectDetection:
         #     if 'frozen_inference_graph.pb' in file_name:
         #         tar_file.extract(files, os.getcwd())
 
-        detection_graph=tf.Graph()
+        print(' ========= Loading detection graph from checkpoint ===================')
+        detection_graph = tf.Graph()
         with detection_graph.as_default():
-            od_graph_def=tf.GraphDef()
-            with tf.gfile.GFile(PATH_TO_CKPT, 'rb') as fid:
-                serialized_graph=fid.read()
+            od_graph_def = tf.GraphDef()
+            with tf.gfile.GFile(self.PATH_TO_CKPT, 'rb') as fid:
+                serialized_graph = fid.read()
                 od_graph_def.ParseFromString(serialized_graph)
                 tf.import_graph_def(od_graph_def, name='')
 
-        label_map=label_map_util.load_labelmap(PATH_TO_LABELS)
-        categories=label_map_util.convert_label_map_to_categories(label_map, max_num_classes=NUM_CLASSES,
+        label_map = label_map_util.load_labelmap(self.PATH_TO_LABELS)
+        categories = label_map_util.convert_label_map_to_categories(label_map, max_num_classes=self.NUM_CLASSES,
                                                                     use_display_name=True)
-        category_index=label_map_util.create_category_index(categories)
+        category_index = label_map_util.create_category_index(categories)
 
         with detection_graph.as_default():
             with tf.Session(graph=detection_graph) as sess:
-                Writer=tf.summary.FileWriter("./logs/graph", sess.graph)
+                Writer = tf.summary.FileWriter("./logs/graph", sess.graph)
+                print(' =================== Fetching input tensor and output tensors  ===================')
                 while not rospy.is_shutdown():
-                    image_np=self.frame
+                    image_np = self.frame
+
                     if image_np is not None:
-                        start_time=time.time()
+                        print('--------------- processing ..... -------------------')
+                        start_time = time.time()
                         image_np.setflags(write=1)
-                        image_np_expanded=np.expand_dims(image_np, axis=0)
-                        image_tensor=detection_graph.get_tensor_by_name('image_tensor:0')
+                        image_np_expanded = np.expand_dims(image_np, axis=0)
+                        image_tensor = detection_graph.get_tensor_by_name('image_tensor:0')
                         # Each box represents a part of the image where a particular object was detected.
-                        boxes=detection_graph.get_tensor_by_name('detection_boxes:0')
+                        boxes = detection_graph.get_tensor_by_name('detection_boxes:0')
                         # Each score represent how level of confidence for each of the objects.
                         # Score is shown on the result image, together with the class label.
-                        scores=detection_graph.get_tensor_by_name('detection_scores:0')
-                        classes=detection_graph.get_tensor_by_name('detection_classes:0')
-                        num_detections=detection_graph.get_tensor_by_name('num_detections:0')
+                        scores = detection_graph.get_tensor_by_name('detection_scores:0')
+                        classes = detection_graph.get_tensor_by_name('detection_classes:0')
+                        num_detections = detection_graph.get_tensor_by_name('num_detections:0')
                         # Actual detection.
-                        (boxes, scores, classes, num_detections)=sess.run([boxes, scores, classes, num_detections],
+                        (boxes, scores, classes, num_detections) = sess.run([boxes, scores, classes, num_detections],
                                                                             feed_dict={image_tensor: image_np_expanded})
                         # Visualization of the results of a detection.
                         vis_util.visualize_boxes_and_labels_on_image_array(
@@ -322,11 +324,16 @@ class ObjectDetection:
                             use_normalized_coordinates=True,
                             line_thickness=8)
                         print "FPS: ", 1.0 / float(time.time() - start_time)
-                        image_message=self.cv_bridge.cv2_to_imgmsg(image_np, encoding='bgr8')
+
+                        image_message = self.cv_bridge.cv2_to_imgmsg(image_np, encoding='bgr8')
+                        if image_message != None:
+                            print('[INFO]: Sending image message through image publisher')
                         self.image_publisher.publish(image_message)
                         if cv2.waitKey(25) & 0xFF == ord('q'):
                             cv2.destroyAllWindows()
                             break
+                    else:
+                        print('[ERROR]:There is no image feeded throught the network')
 
 
 if __name__ == '__main__':
