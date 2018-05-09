@@ -267,6 +267,7 @@ class ObjectDetection:
 
     def image_msg_callback(self, img):
         self.frame = self.cv_bridge.imgmsg_to_cv2(img)
+        pass
 
     def object_detection(self):
         sys.path.append("..")
@@ -325,7 +326,7 @@ class ObjectDetection:
                             line_thickness=8)
                         print "FPS: ", 1.0 / float(time.time() - start_time)
 
-                        image_message = self.cv_bridge.cv2_to_imgmsg(image_np, encoding='bgr8')
+                        image_message = self.cv_bridge.cv2_to_imgmsg(image_np, encoding='rgb8')
                         if image_message != None:
                             print('[INFO]: Sending image message through image publisher')
                         self.image_publisher.publish(image_message)
