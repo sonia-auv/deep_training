@@ -241,7 +241,8 @@ class ObjectDetection:
                         if vis_text:
                             cv2.putText(image, "fps: {}".format(fps.fps_local()), (10, 30),
                                         cv2.FONT_HERSHEY_SIMPLEX, 0.75, (77, 255, 9), 2)
-                        cv2.imshow('object_detection', image)
+                        #cv2.imshow('object_detection', image)
+                        image_message = self.cv_bridge.cv2_to_imgmsg(image_np, encoding='rgb8')
                         # Exit Option
                         if cv2.waitKey(1) & 0xFF == ord('q'):
                             break
@@ -327,7 +328,7 @@ class ObjectDetection:
                             line_thickness=8)
                         print "FPS: ", 1.0 / float(time.time() - start_time)
 
-                        image_message = self.cv_bridge.cv2_to_imgmsg(image_np, encoding='rgb8')
+                        image_message = self.cv_bridge.cv2_to_imgmsg(image_np, encoding='bgr8')
                         if image_message != None:
                             print('[INFO]: Sending image message through image publisher')
                         self.image_publisher.publish(image_message)
