@@ -24,7 +24,7 @@ class ObjectDetection:
 
     IMAGE_PUBLISHER = '/deep_detection/object_detection'
     #IMAGE_SUBSCRIBER = '/usb_cam/image_raw'
-    IMAGE_SUBSCRIBER  = 'provider_vison/Front_GigE'
+    IMAGE_SUBSCRIBER = '/provider_vison/Front_GigE'
 
     def __init__(self):
         rospy.init_node('deep_detection')
