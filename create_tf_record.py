@@ -196,7 +196,8 @@ def main(_):
 
     logging.info('Reading from dataset.')
     image_dir = FLAGS.image_dir
-    annotations_dir = FLAGS.annoation_dir
+    annotations_dir = FLAGS.annotation_dir
+    output_dir = FLAGS.output_dir
     examples_path = FLAGS.trainval_file
     examples_list = dataset_util.read_examples_list(examples_path)
 
@@ -211,9 +212,10 @@ def main(_):
     logging.info('%d training and %d validation examples.',
                  len(train_examples), len(val_examples))
 
-    train_output_path = os.path.join(FLAGS.output_dir, 'train.record')
-    val_output_path = os.path.join(FLAGS.output_dir, 'val.record')
-    label_map_output_path = os.path.join(FLAGS.output_dir, 'label_map.pbtxt')
+    os.makedirs(output_dir)
+    train_output_path = os.path.join(output_dir, 'train.record')
+    val_output_path = os.path.join(output_dir, 'val.record')
+    label_map_output_path = os.path.join(output_dir, 'label_map.pbtxt')
     create_tf_record(train_output_path, label_map_dict, annotations_dir,
                      image_dir, train_examples)
     create_tf_record(val_output_path, label_map_dict, annotations_dir,
@@ -225,4 +227,4 @@ def main(_):
 if __name__ == '__main__':
     parser = parse_args()
     FLAGS, unparsed = parser.parse_known_args()
-    tf.app.run(main=main, argv=[sys.argv[0]] + unparsed)
+    tf.app.run(main=main)
