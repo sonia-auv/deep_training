@@ -22,13 +22,14 @@ Example usage:
     ./create_pet_tf_record --data_dir=/home/user/pet \
         --output_dir=/home/user/pet/output
 """
-
+import argparse
 import hashlib
 import io
 import logging
 import os
 import random
 import re
+import shutil
 
 from lxml import etree
 import PIL.Image
@@ -36,6 +37,9 @@ import tensorflow as tf
 
 from object_detection.utils import dataset_util
 from object_detection.utils import label_map_util
+
+
+FLAGS = None
 
 
 def dict_to_tf_example(data,
@@ -149,15 +153,51 @@ def create_tf_record(output_filename,
     writer.close()
 
 
+def parse_args():
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        '--label_map_file',
+        type=str,
+        required=True,
+        help='Path to label_map.pbtxt file.'
+    )
+    parser.add_argument(
+        '--image_dir',
+        type=str,
+        required=True,
+        help='Path to images directory.'
+    )
+    parser.add_argument(
+        '--annotation_dir',
+        type=str,
+        required=True,
+        help='Path to annotation directory.'
+    )
+    parser.add_argument(
+        '--trainval_file',
+        type=str,
+        required=True,
+        help='Path to trainval.txt file.'
+    )
+    parser.add_argument(
+        '--output_dir',
+        type=str,
+        required=True,
+        help='Path to output directory.'
+    )
+
+    return parser
+
+
 def main(_):
     home = os.path.expanduser('~')
 
-    label_map_dict = label_map_util.get_label_map_dict('dataset/annotations/label_map.pbtxt')
+    label_map_dict = label_map_util.get_label_map_dict(FLAGS.label_map_file)
 
     logging.info('Reading from dataset.')
-    image_dir = os.path.join('dataset', 'images')
-    annotations_dir = os.path.join('dataset', 'annotations')
-    examples_path = os.path.join(annotations_dir, 'trainval.txt')
+    image_dir = FLAGS.image_dir
+    annotations_dir = FLAGS.annoation_dir
+    examples_path = FLAGS.trainval_file
     examples_list = dataset_util.read_examples_list(examples_path)
 
     # Test images are not included in the downloaded data set, so we shall perform
@@ -171,13 +211,18 @@ def main(_):
     logging.info('%d training and %d validation examples.',
                  len(train_examples), len(val_examples))
 
-    train_output_path = os.path.join('records', 'train.record')
-    val_output_path = os.path.join('records', 'val.record')
+    train_output_path = os.path.join(FLAGS.output_dir, 'train.record')
+    val_output_path = os.path.join(FLAGS.output_dir, 'val.record')
+    label_map_output_path = os.path.join(FLAGS.output_dir, 'label_map.pbtxt')
     create_tf_record(train_output_path, label_map_dict, annotations_dir,
                      image_dir, train_examples)
     create_tf_record(val_output_path, label_map_dict, annotations_dir,
                      image_dir, val_examples)
 
+    shutil.copy(FLAGS.label_map_file, label_map_output_path)
+
 
 if __name__ == '__main__':
-    tf.app.run()
+    parser = parse_args()
+    FLAGS, unparsed = parser.parse_known_args()
+    tf.app.run(main=main, argv=[sys.argv[0]] + unparsed)
