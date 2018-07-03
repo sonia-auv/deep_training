@@ -29,6 +29,8 @@ import logging
 import os
 import random
 import re
+import shutil
+import argparse
 
 from lxml import etree
 import PIL.Image
@@ -36,6 +38,9 @@ import tensorflow as tf
 
 from object_detection.utils import dataset_util
 from object_detection.utils import label_map_util
+
+
+FLAGS = None
 
 
 def dict_to_tf_example(data,
@@ -149,15 +154,29 @@ def create_tf_record(output_filename,
     writer.close()
 
 
-def main(_):
-    home = os.path.expanduser('~')
+def parse_args():
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        '-d',
+        '--base_dir',
+        type=str,
+        required=True,
+        help='Directory containing data to generate tf record '
+    )
 
-    label_map_dict = label_map_util.get_label_map_dict('dataset/annotations/label_map.pbtxt')
+    return parser
+
+
+def main(_):
+    #home = os.path.expanduser('~')
+
+    base_dir = FLAGS.base_dir
+    label_map_dict = label_map_util.get_label_map_dict(os.path.join(base_dir, 'label_map.pbtxt'))
 
     logging.info('Reading from dataset.')
-    image_dir = os.path.join('dataset', 'images')
-    annotations_dir = os.path.join('dataset', 'annotations')
-    examples_path = os.path.join(annotations_dir, 'trainval.txt')
+    image_dir = os.path.join(base_dir, 'resized')
+    annotations_dir = os.path.join(base_dir, 'annotations', 'pascal_voc')
+    examples_path = os.path.join(base_dir, 'trainval.txt')
     examples_list = dataset_util.read_examples_list(examples_path)
 
     # Test images are not included in the downloaded data set, so we shall perform
@@ -171,13 +190,18 @@ def main(_):
     logging.info('%d training and %d validation examples.',
                  len(train_examples), len(val_examples))
 
-    train_output_path = os.path.join('records', 'train.record')
-    val_output_path = os.path.join('records', 'val.record')
+    os.makedirs(os.path.join(base_dir, 'data'))
+    train_output_path = os.path.join(base_dir, 'data', 'train.record')
+    val_output_path = os.path.join(base_dir, 'data', 'val.record')
     create_tf_record(train_output_path, label_map_dict, annotations_dir,
                      image_dir, train_examples)
     create_tf_record(val_output_path, label_map_dict, annotations_dir,
                      image_dir, val_examples)
+    shutil.copy(os.path.join(base_dir, 'label_map.pbtxt'),
+                os.path.join(base_dir, 'data', 'label_map.pbtxt'))
 
 
 if __name__ == '__main__':
+    parser = parse_args()
+    FLAGS, unparsed = parser.parse_known_args()
     tf.app.run()
