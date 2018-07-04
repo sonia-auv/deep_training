@@ -185,8 +185,8 @@ def main(_):
     num_train = int(0.95 * num_examples)
     train_examples = examples_list[:num_train]
     val_examples = examples_list[num_train:]
-    logging.warning('%d training and %d validation examples.',
-                    len(train_examples), len(val_examples))
+    logging.info('%d training and %d validation examples.',
+                 len(train_examples), len(val_examples))
 
     os.makedirs(os.path.join(base_dir, 'data'))
     train_output_path = os.path.join(base_dir, 'data', 'train.record')
@@ -199,11 +199,8 @@ def main(_):
     shutil.copy(os.path.join(base_dir, 'label_map.pbtxt'),
                 os.path.join(base_dir, 'data', 'label_map.pbtxt'))
 
-    shutil.copy(os.path.join(base_dir, 'label_map.pbtxt'),
-                os.path.join(base_dir, 'data', 'label_map.pbtxt'))
-
 
 if __name__ == '__main__':
     parser = parse_args()
     FLAGS, unparsed = parser.parse_known_args()
-    tf.app.run()
+    tf.app.run(main=main)
